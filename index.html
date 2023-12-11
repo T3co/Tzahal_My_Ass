@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Drone Configuration</title>
+  <title>Kinneret Project</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Cabin:wght@400;500;600;700&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
@@ -109,13 +109,12 @@
 
 <body>
   <header>
-    <h1>Drone Configuration</h1>
+    <h1>Kinneret Project</h1>
   </header>
   <main>
     <div class="wrapper">
       <div class="option">
         <h2>Vehicle's Location</h2>
-        <p>Locate the drone in live-time!</p>
         <ul>
           <li>
             <span class="red-text" onclick="focusLocation('drone')">Red</span> Drone Location
@@ -129,18 +128,15 @@
       <div class="stacked-option">
         <div class="stack">
           <h2>Car Camera</h2>
-          <p>Watch the car camera in live.</p>
-          <iframe width="400" height="280" src="https://www.youtube.com/embed/tgbNymZ7vqY" allowfullscreen></iframe>
+          <iframe width="500" height="280" src="" allowfullscreen></iframe>
         </div>
         <div class="stack">
           <h2>Drone Camera</h2>
-          <p>Watch the car camera in live.</p>
-          <iframe width="400" height="280" src="https://www.youtube.com/embed/tgbNymZ7vqY" allowfullscreen></iframe>
+          <iframe width="500" height="280" src="" allowfullscreen></iframe>
         </div>
       </div>
       <div class="option">
         <h2>Vehicle's Data</h2>
-        <p>Here you can find all the vehicle's statistics and information.</p>
         <div id="empty"></div>
       </div>
     </div>
@@ -154,14 +150,14 @@
     import { getDatabase, set, get, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyCzofUfJVFvoxQc-7FeZvrGEqVhzYUjw_I",
-      authDomain: "testproject-5a220.firebaseapp.com",
-      databaseURL: "https://testproject-5a220-default-rtdb.firebaseio.com",
-      projectId: "testproject-5a220",
-      storageBucket: "testproject-5a220.appspot.com",
-      messagingSenderId: "181788492685",
-      appId: "1:181788492685:web:bdcf79d5ab0e4dc83773c4",
-      measurementId: "G-NG594RR19H"
+      apiKey: "AIzaSyCV5LpZDV7luQ_HgNU80nE2gfjuGhn84F0",
+  authDomain: "kinneret-proj.firebaseapp.com",
+  databaseURL: "https://kinneret-proj-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "kinneret-proj",
+  storageBucket: "kinneret-proj.appspot.com",
+  messagingSenderId: "632506159012",
+  appId: "1:632506159012:web:468494314d2542ff02fb31",
+  measurementId: "G-PHLNXYJT73"
     };
 
     // Initialize Firebase
@@ -169,7 +165,7 @@
     const db = getDatabase();
 
     window.readLocation = async function (system) {
-      const locationsRef = ref(db, 'locations/' + system);
+      const locationsRef = ref(db, 'location/' + system);
       const snapshot = await get(locationsRef);
       const location = {
         latitude: snapshot.val().latitude,
@@ -178,14 +174,14 @@
       return location;
     };
 
-    var carLocationRef = ref(db, 'locations/car');
+    var carLocationRef = ref(db, 'location/car');
     onValue(carLocationRef, (snapshot) => {
       const data = snapshot.val();
       console.log(data);
       window.updateCarLocation(snapshot.val().latitude, snapshot.val().longitude)
     });
 
-    var droneLocationRef = ref(db, 'locations/drone');
+    var droneLocationRef = ref(db, 'location/drone');
     onValue(droneLocationRef, (snapshot) => {
       const data = snapshot.val();
       console.log(data);
