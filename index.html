@@ -34,6 +34,7 @@
       display: flex;
       justify-content: center;
       align-self: center;
+      text-align: center;
       margin-right: auto;
       margin-left: auto;
       max-width: 1600px;
@@ -54,16 +55,30 @@
       z-index: 0;
     }
 
+    .camera-pov {
+      width: 100%;
+      height: calc(100% - 100px);
+    }
+
     @media screen and (max-width: 1600px) {
       .wrapper {
         margin: 10px;
         grid-template-columns: repeat(2, 1fr);
       }
+
+      .camera-pov {
+        height: calc(100% - 100px);
+      }
     }
 
-    @media screen and (max-width: 768px) {
+    @media screen and (max-width: 900px) {
       .wrapper {
         grid-template-columns: 1fr;
+      }
+
+      .camera-pov {
+        height: 280px;
+        margin-bottom: 10px;
       }
     }
 
@@ -71,6 +86,7 @@
       color: #ccc;
       background-color: #2e3032;
       padding-inline: 20px;
+      padding-bottom: 20px;
     }
 
     .wrapper .stacked-option {
@@ -128,11 +144,11 @@
       <div class="stacked-option">
         <div class="stack">
           <h2>Car Camera</h2>
-          <iframe width="500" height="280" src="" allowfullscreen></iframe>
+          <iframe class="camera-pov" src="" allowfullscreen></iframe>
         </div>
         <div class="stack">
           <h2>Drone Camera</h2>
-          <iframe width="500" height="280" src="" allowfullscreen></iframe>
+          <iframe class="camera-pov" src="" allowfullscreen></iframe>
         </div>
       </div>
       <div class="option">
@@ -151,13 +167,13 @@
 
     const firebaseConfig = {
       apiKey: "AIzaSyCV5LpZDV7luQ_HgNU80nE2gfjuGhn84F0",
-  authDomain: "kinneret-proj.firebaseapp.com",
-  databaseURL: "https://kinneret-proj-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "kinneret-proj",
-  storageBucket: "kinneret-proj.appspot.com",
-  messagingSenderId: "632506159012",
-  appId: "1:632506159012:web:468494314d2542ff02fb31",
-  measurementId: "G-PHLNXYJT73"
+      authDomain: "kinneret-proj.firebaseapp.com",
+      databaseURL: "https://kinneret-proj-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "kinneret-proj",
+      storageBucket: "kinneret-proj.appspot.com",
+      messagingSenderId: "632506159012",
+      appId: "1:632506159012:web:468494314d2542ff02fb31",
+      measurementId: "G-PHLNXYJT73"
     };
 
     // Initialize Firebase
