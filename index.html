@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drone Configuration</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Cabin:wght@400;500;600;700&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Poppins", "Cabin", sans-serif;
+      background-color: #262829;
+      color: white;
+    }
+
+    header {
+      top: 0;
+      position: sticky;
+      margin-right: auto;
+      margin-left: auto;
+      max-width: 1600px;
+      justify-content: center !important;
+      z-index: 1;
+    }
+
+    header,
+    footer {
+      color: #fff;
+      background-color: #262829;
+      display: flex;
+      justify-content: center;
+      align-self: center;
+      margin-right: auto;
+      margin-left: auto;
+      max-width: 1600px;
+    }
+
+    .wrapper {
+      margin-right: auto;
+      margin-left: auto;
+      max-width: 1600px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 10px;
+    }
+
+    #map {
+      height: 700px;
+      width: calc(400px + fit-content);
+      z-index: 0;
+    }
+
+    @media screen and (max-width: 1600px) {
+      .wrapper {
+        margin: 10px;
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media screen and (max-width: 768px) {
+      .wrapper {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .wrapper .option {
+      color: #ccc;
+      background-color: #2e3032;
+      padding-inline: 20px;
+    }
+
+    .wrapper .stacked-option {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-gap: 10px;
+    }
+
+    .wrapper .stacked-option .stack {
+      color: #ccc;
+      background-color: #2e3032;
+      padding-inline: 20px;
+    }
+
+    .wrapper .option h2 {
+      color: #ddd;
+    }
+
+    .red-text {
+      background-color: red;
+      font-weight: bold;
+      border-radius: .25rem;
+      padding-inline: 5px;
+      cursor: pointer;
+    }
+
+    .green-text {
+      background-color: green;
+      font-weight: bold;
+      border-radius: .25rem;
+      padding-inline: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Drone Configuration</h1>
+  </header>
+  <main>
+    <div class="wrapper">
+      <div class="option">
+        <h2>Vehicle's Location</h2>
+        <p>Locate the drone in live-time!</p>
+        <ul>
+          <li>
+            <span class="red-text" onclick="focusLocation('drone')">Red</span> Drone Location
+          </li>
+          <li>
+            <span class="green-text" onclick="focusLocation('car')">Green</span> Car Location
+          </li>
+        </ul>
+        <div id="map"></div>
+      </div>
+      <div class="stacked-option">
+        <div class="stack">
+          <h2>Car Camera</h2>
+          <p>Watch the car camera in live.</p>
+          <iframe width="400" height="280" src="https://www.youtube.com/embed/tgbNymZ7vqY" allowfullscreen></iframe>
+        </div>
+        <div class="stack">
+          <h2>Drone Camera</h2>
+          <p>Watch the car camera in live.</p>
+          <iframe width="400" height="280" src="https://www.youtube.com/embed/tgbNymZ7vqY" allowfullscreen></iframe>
+        </div>
+      </div>
+      <div class="option">
+        <h2>Vehicle's Data</h2>
+        <p>Here you can find all the vehicle's statistics and information.</p>
+        <div id="empty"></div>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <h5>© 2023 Amitai Dvora Design</h5>
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, set, get, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzofUfJVFvoxQc-7FeZvrGEqVhzYUjw_I",
+      authDomain: "testproject-5a220.firebaseapp.com",
+      databaseURL: "https://testproject-5a220-default-rtdb.firebaseio.com",
+      projectId: "testproject-5a220",
+      storageBucket: "testproject-5a220.appspot.com",
+      messagingSenderId: "181788492685",
+      appId: "1:181788492685:web:bdcf79d5ab0e4dc83773c4",
+      measurementId: "G-NG594RR19H"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase();
+
+    window.readLocation = async function (system) {
+      const locationsRef = ref(db, 'locations/' + system);
+      const snapshot = await get(locationsRef);
+      const location = {
+        latitude: snapshot.val().latitude,
+        longitude: snapshot.val().longitude
+      };
+      return location;
+    };
+
+    var carLocationRef = ref(db, 'locations/car');
+    onValue(carLocationRef, (snapshot) => {
+      const data = snapshot.val();
+      console.log(data);
+      window.updateCarLocation(snapshot.val().latitude, snapshot.val().longitude)
+    });
+
+    var droneLocationRef = ref(db, 'locations/drone');
+    onValue(droneLocationRef, (snapshot) => {
+      const data = snapshot.val();
+      console.log(data);
+      window.updateDroneLocation(snapshot.val().latitude, snapshot.val().longitude)
+    });
+  </script>
+
+  <script type="module">
+    var carLatitude = 0, carLongitude = 0;
+    var droneLatitude = 0, droneLongitude = 0;
+    var carCircle = undefined, droneCircle = undefined;
+    var map = undefined;
+
+    window.updateCarLocation = function (latitude, longitude) {
+      carLatitude = latitude;
+      carLongitude = longitude;
+      updateMap();
+    }
+
+    window.updateDroneLocation = function (latitude, longitude) {
+      droneLatitude = latitude;
+      droneLongitude = longitude;
+      updateMap();
+    }
+
+    async function updateCarLocation() {
+      const carLocation = await window.readLocation('car');
+      carLatitude = carLocation.latitude;
+      carLongitude = carLocation.longitude;
+      updateMap();
+    }
+
+    async function updateDroneLocation() {
+      const droneLocation = await window.readLocation('drone');
+      droneLatitude = droneLocation.latitude;
+      droneLongitude = droneLocation.latitude;
+      updateMap();
+    }
+
+    function updateMap() {
+      if (!map) {
+        // If the map is not initialized, create a new map
+        map = L.map("map").setView(
+          [parseFloat(carLatitude), parseFloat(carLongitude)],
+          22
+        );
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap contributors",
+        }).addTo(map);
+      } else {
+        // If the map is already initialized, update the marker location and view
+        const middleLatitude = (parseFloat(carLatitude) + parseFloat(droneLatitude)) / 2;
+        const middleLongitude = (parseFloat(carLongitude) + parseFloat(droneLongitude)) / 2;
+
+        map.setView([middleLatitude, middleLongitude], 22);
+
+        if (carCircle) {
+          map.removeLayer(carCircle);
+        }
+
+        if (droneCircle) {
+          map.removeLayer(droneCircle);
+        }
+      }
+
+      carCircle = L.circle([carLatitude, carLongitude], {
+        color: "green",
+        fillColor: "#013220",
+        fillOpacity: 0.75,
+        radius: 5,
+      }).addTo(map);
+
+      droneCircle = L.circle([droneLatitude, droneLongitude], {
+        color: "red",
+        fillColor: "#FF0000",
+        fillOpacity: 0.75,
+        radius: 5,
+      }).addTo(map);
+    }
+
+    window.focusLocation = function (system) {
+      switch (system) {
+        case "car":
+          if (map)
+            map.setView([carLatitude, carLongitude], 22);
+          break;
+        case "drone":
+          if (map)
+            map.setView([droneLatitude, droneLongitude], 22);
+          break;
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</body>
+
+</html>
