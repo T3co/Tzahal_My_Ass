@@ -7,12 +7,12 @@
   <title>Kinneret Project</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    @import url("https://fonts.googleapis.com/css2?family=Cabin:wght@400;500;600;700&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
+    @import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
     body {
       margin: 0;
       padding: 0;
-      font-family: "Poppins", "Cabin", sans-serif;
+      font-family: "Rubik", "Cabin", sans-serif;
       background-color: #262829;
       color: white;
     }
@@ -99,26 +99,56 @@
       color: #ccc;
       background-color: #2e3032;
       padding-inline: 20px;
+      padding-bottom: 20px;
     }
 
     .wrapper .option h2 {
       color: #ddd;
     }
 
-    .red-text {
-      background-color: red;
-      font-weight: bold;
+    .focus-container {
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 10px;
+      gap: 5px;
+    }
+
+    .focus-container span {
+      display: flex;
+      gap: 7.5px;
+    }
+
+    .drone-text {
+      background-color: #0077b6;
       border-radius: .25rem;
       padding-inline: 5px;
       cursor: pointer;
     }
 
-    .green-text {
+    .car-text {
       background-color: green;
-      font-weight: bold;
       border-radius: .25rem;
       padding-inline: 5px;
       cursor: pointer;
+    }
+
+    .veh-data-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .veh-data-fields .field {
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      background-color: #262829;
+      border-radius: 5px;
+    }
+
+    .veh-data-fields .field .value {
+      align-self: center;
+      color: white;
     }
   </style>
 </head>
@@ -131,29 +161,67 @@
     <div class="wrapper">
       <div class="option">
         <h2>Vehicle's Location</h2>
-        <ul>
-          <li>
-            <span class="red-text" onclick="focusLocation('drone')">Red</span> Drone Location
-          </li>
-          <li>
-            <span class="green-text" onclick="focusLocation('car')">Green</span> Car Location
-          </li>
-        </ul>
+        <div class="focus-container">
+          <span><span class="drone-text" onclick="focusLocation('drone')">Go-to</span> Drone Location</span>
+          <span><span class="car-text" onclick="focusLocation('car')">Go-to</span> Car Location</span>
+        </div>
         <div id="map"></div>
       </div>
       <div class="stacked-option">
         <div class="stack">
           <h2>Car Camera</h2>
-          <iframe class="camera-pov" src="" allowfullscreen></iframe>
+          <iframe class="camera-pov" src="https://www.youtube.com/embed/rw7bxTqkYYs?si=O8-Uog0GIs4drVQn" frameborder="0"
+            allowfullscreen></iframe>
         </div>
         <div class="stack">
           <h2>Drone Camera</h2>
-          <iframe class="camera-pov" src="" allowfullscreen></iframe>
+          <iframe class="camera-pov" src="https://www.youtube.com/embed/lHpYyYtkmrw?si=fWMz_Zcpvuo3Nv4r" frameborder="0"
+            allowfullscreen></iframe>
         </div>
       </div>
-      <div class="option">
-        <h2>Vehicle's Data</h2>
-        <div id="empty"></div>
+      <div class="stacked-option">
+        <div class="stack">
+          <h2>Car's Data</h2>
+          <div class="veh-data-fields">
+            <div class="field">
+              <span class="title">Speed</span>
+              <span id="car-speed-value" class="value">0 KPH</span>
+            </div>
+            <div class="field">
+              <span class="title">Latitude</span>
+              <span id="car-latitude-value" class="value">0°</span>
+            </div>
+            <div class="field">
+              <span class="title">Longitude</span>
+              <span id="car-longitude-value" class="value">0°</span>
+            </div>
+            <div class="field">
+              <span class="title">Altitude</span>
+              <span id="car-altitude-value" class="value">0' ft</span>
+            </div>
+          </div>
+        </div>
+        <div class="stack">
+          <h2>Drone's Data</h2>
+          <div class="veh-data-fields">
+            <div class="field">
+              <span class="title">Speed</span>
+              <span id="drone-speed-value" class="value">0 KPH</span>
+            </div>
+            <div class="field">
+              <span class="title">Latitude</span>
+              <span id="drone-latitude-value" class="value">0°</span>
+            </div>
+            <div class="field">
+              <span class="title">Longitude</span>
+              <span id="drone-longitude-value" class="value">0°</span>
+            </div>
+            <div class="field">
+              <span class="title">Altitude</span>
+              <span id="drone-altitude-value" class="value">0' ft</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
@@ -180,61 +248,71 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase();
 
-    window.readLocation = async function (system) {
+    window.readData = async function (system) {
       const locationsRef = ref(db, 'location/' + system);
       const snapshot = await get(locationsRef);
-      const location = {
+      const vehicle = {
+        speed: snapshot.val().speed,
         latitude: snapshot.val().latitude,
-        longitude: snapshot.val().longitude
+        longitude: snapshot.val().longitude,
+        altitude: snapshot.val().altitude,
       };
-      return location;
+      return vehicle;
     };
 
     var carLocationRef = ref(db, 'location/car');
     onValue(carLocationRef, (snapshot) => {
-      const data = snapshot.val();
-      console.log(data);
-      window.updateCarLocation(snapshot.val().latitude, snapshot.val().longitude)
+      window.updateCarData(snapshot.val())
     });
 
     var droneLocationRef = ref(db, 'location/drone');
     onValue(droneLocationRef, (snapshot) => {
-      const data = snapshot.val();
-      console.log(data);
-      window.updateDroneLocation(snapshot.val().latitude, snapshot.val().longitude)
+      window.updateDroneData(snapshot.val())
     });
   </script>
 
   <script type="module">
-    var carLatitude = 0, carLongitude = 0;
-    var droneLatitude = 0, droneLongitude = 0;
+    var carLatitude = 0, carLongitude = 0, carSpeed = 0, carAltitude = 0;
+    var droneLatitude = 0, droneLongitude = 0, droneSpeed = 0, droneAltitude = 0;
     var carCircle = undefined, droneCircle = undefined;
     var map = undefined;
 
-    window.updateCarLocation = function (latitude, longitude) {
-      carLatitude = latitude;
-      carLongitude = longitude;
+    window.updateCarData = function (vehicle) {
+      carLatitude = vehicle.latitude;
+      carLongitude = vehicle.longitude;
+      carAltitude = vehicle.altitude;
+      carSpeed = vehicle.speed;
       updateMap();
+      updateData('car', vehicle);
     }
 
-    window.updateDroneLocation = function (latitude, longitude) {
-      droneLatitude = latitude;
-      droneLongitude = longitude;
+    window.updateDroneData = function (vehicle) {
+      droneLatitude = vehicle.latitude;
+      droneLongitude = vehicle.longitude;
+      droneAltitude = vehicle.altitude;
+      droneSpeed = vehicle.speed;
       updateMap();
+      updateData('drone', vehicle);
     }
 
-    async function updateCarLocation() {
-      const carLocation = await window.readLocation('car');
-      carLatitude = carLocation.latitude;
-      carLongitude = carLocation.longitude;
+    async function updateCarData() {
+      const carRef = await window.readData('car');
+      carLatitude = carRef.latitude;
+      carLongitude = carRef.longitude;
+      carAltitude = carRef.altitude;
+      carSpeed = carRef.speed;
       updateMap();
+      updateData('car', carRef);
     }
 
-    async function updateDroneLocation() {
-      const droneLocation = await window.readLocation('drone');
-      droneLatitude = droneLocation.latitude;
-      droneLongitude = droneLocation.latitude;
+    async function updateDroneData() {
+      const droneRef = await window.readLocation('drone');
+      droneLatitude = droneRef.latitude;
+      droneLongitude = droneRef.longitude;
+      droneAltitude = droneRef.altitude;
+      droneSpeed = droneRef.speed;
       updateMap();
+      updateData('drone', droneRef);
     }
 
     function updateMap() {
@@ -269,14 +347,23 @@
         fillColor: "#013220",
         fillOpacity: 0.75,
         radius: 5,
-      }).addTo(map);
+        bounceOnAdd: true,
+      }).bindPopup(String("Car GPS")).addTo(map);
 
       droneCircle = L.circle([droneLatitude, droneLongitude], {
-        color: "red",
-        fillColor: "#FF0000",
+        color: "#00b4d8",
+        fillColor: "#0077b6",
         fillOpacity: 0.75,
         radius: 5,
-      }).addTo(map);
+        bounceOnAdd: true,
+      }).bindPopup(String("Drone GPS")).addTo(map);
+    }
+
+    function updateData(system, obj) {
+      document.getElementById(system + "-speed-value").innerText = obj.speed + " KPH";
+      document.getElementById(system + "-latitude-value").innerText = obj.latitude + "°";
+      document.getElementById(system + "-longitude-value").innerText = obj.longitude + "°";
+      document.getElementById(system + "-altitude-value").innerText = obj.altitude + "' ft";
     }
 
     window.focusLocation = function (system) {
@@ -291,6 +378,8 @@
           break;
       }
     }
+
+    updateMap();
   </script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </body>
