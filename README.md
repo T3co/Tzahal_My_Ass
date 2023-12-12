@@ -1,6 +1,5 @@
 # Kinneret Project
 Webpage UI Code for college project of Oryam, Kubi, Jimmy and Ohad.
-
 Webpage was designed and made by Amitai Dvora (finalLy)
 
 **Features**:
