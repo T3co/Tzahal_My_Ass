@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kinneret Project</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://kit.fontawesome.com/8ccecce411.js" crossorigin="anonymous"></script>
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
@@ -178,8 +179,10 @@
       <div class="option">
         <h2>Vehicle's Location</h2>
         <div class="focus-container">
-          <span><span class="drone-text" onclick="focusLocation('drone')">Go-to</span> Drone Location</span>
-          <span><span class="car-text" onclick="focusLocation('car')">Go-to</span> Car Location</span>
+          <span><span class="drone-text" onclick="focusLocation('drone')"><i class="fa-solid fa-location-dot"></i>
+              Go-to</span> Drone Location</span>
+          <span><span class="car-text" onclick="focusLocation('car')"><i class="fa-solid fa-location-dot"></i>
+              Go-to</span> Car Location</span>
         </div>
         <div id="map"></div>
       </div>
