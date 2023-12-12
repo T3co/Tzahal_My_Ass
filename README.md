@@ -1,21 +1,17 @@
 # Kinneret Project
-Most Webpage UI Code for college project of Oryam, Kubi, Jimmy and Ohad.
+Webpage UI Code for college project of Oryam, Kubi, Jimmy and Ohad.
 Webpage was designed and made by Amitai Dvora (finalLy)
 
 **Features**:
-- Adds turning off/on the vehicle's engine
-- Opening all sorts of doors in the vehicle
-- Adds opening windows mechanism
-- Adds turning off/on the vehicle's interior lights
-- Allowing the player the move between seats in vehicle
-- Adds signal lights functionality using the arrow keys ←↑→
-- Disables GTA5 default HUDs
+- Adds an interactive map to locate the drone and car
+- Go-to buttons to ping the vehicles on map
+- Connects to the car's camera and drone's camera
+- Streams the cameras on the UI
+- Shows both the vehicles data on the UI
 
 **Usage**:
-- Press `Config.OpenKey` while inside a vehicle to open the car control's menu.
-- In order to change the key opening the menu, open `client/config.lua` and set `Config.OpenKey` to a key from this [Key Mappings List](https://docs.fivem.net/docs/game-references/input-mapper-parameter-ids/keyboard/)
-- You can decide whether to disable the GTA5 default HUDs in the `client/config.lua` by setting `Config.DisableGTA5Defaults` accordingly.
-- Also you can decide which GTA5 HUD elements you want to disable, in `client/gta5_hud.lua` you'll find the `HUD_ELEMENTS` local table. You can modify the `hidden` value in the tables accordingly.
+- Press `Go-to` Drone Location or Car Location to set the map view to each one of them
+- Drag, Zoom in and out on the map using mouse wheel or mouse buttons.
 
 **Preview**:
 
