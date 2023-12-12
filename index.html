@@ -160,6 +160,12 @@
       align-self: center;
       color: white;
     }
+
+    .veh-data-fields .field .coords-value {
+      overflow: hidden;
+      display: inline-block;
+      white-space: nowrap;
+    }
   </style>
 </head>
 
@@ -199,11 +205,11 @@
             </div>
             <div class="field">
               <span class="title">Latitude</span>
-              <span id="car-latitude-value" class="value">0°</span>
+              <span id="car-latitude-value" class="coords-value value">0°</span>
             </div>
             <div class="field">
               <span class="title">Longitude</span>
-              <span id="car-longitude-value" class="value">0°</span>
+              <span id="car-longitude-value" class="coords-value value">0°</span>
             </div>
             <div class="field">
               <span class="title">Altitude</span>
@@ -220,11 +226,11 @@
             </div>
             <div class="field">
               <span class="title">Latitude</span>
-              <span id="drone-latitude-value" class="value">0°</span>
+              <span id="drone-latitude-value" class="coords-value value">0°</span>
             </div>
             <div class="field">
               <span class="title">Longitude</span>
-              <span id="drone-longitude-value" class="value">0°</span>
+              <span id="drone-longitude-value" class="coords-value value">0°</span>
             </div>
             <div class="field">
               <span class="title">Altitude</span>
@@ -307,7 +313,7 @@
     }
 
     async function updateDroneData() {
-      droneObject = await window.readLocation('drone');
+      droneObject = await window.readData('drone');
       updateMap();
       updateData('drone', droneObject);
     }
@@ -358,8 +364,13 @@
 
     function updateData(system, obj) {
       document.getElementById(system + "-speed-value").innerText = obj.speed + " KPH";
-      document.getElementById(system + "-latitude-value").innerText = obj.latitude + "°";
-      document.getElementById(system + "-longitude-value").innerText = obj.longitude + "°";
+
+      document.getElementById(system + "-latitude-value").innerText = parseFloat(obj.latitude).toFixed(3) + "°";
+      document.getElementById(system + "-latitude-value").setAttribute('value', obj.latitude);
+
+      document.getElementById(system + "-longitude-value").innerText = parseFloat(obj.longitude).toFixed(3) + "°";
+      document.getElementById(system + "-longitude-value").setAttribute('value', obj.longitude);
+
       document.getElementById(system + "-altitude-value").innerText = obj.altitude + "' ft";
     }
 
@@ -377,6 +388,21 @@
     }
 
     await updateMap();
+
+    document.addEventListener("DOMContentLoaded", function () {
+      var coordsValues = document.querySelectorAll(".coords-value");
+
+      coordsValues.forEach(function (element) {
+        element.addEventListener("mouseenter", function () {
+          element.innerHTML = element.getAttribute('value') + "°";
+        });
+
+        element.addEventListener("mouseleave", function () {
+          var roundedValue = parseFloat(element.getAttribute('value')).toFixed(3);
+          element.innerHTML = roundedValue + "°";
+        });
+      });
+    });
   </script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </body>
