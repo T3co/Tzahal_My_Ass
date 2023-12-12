@@ -267,23 +267,32 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase();
 
+    /*
+      A function to read data from the firebase database locations path
+      that returns the vehicle object requested with the given vehicle system name
+    */
     window.readData = async function (system) {
       const locationsRef = ref(db, 'location/' + system);
       const snapshot = await get(locationsRef);
-      const vehicle = {
+      return {
         speed: snapshot.val().speed,
         latitude: snapshot.val().latitude,
         longitude: snapshot.val().longitude,
         altitude: snapshot.val().altitude,
-      };
-      return vehicle;
+      };;
     };
 
+    /*
+      onValue changed listener for the droneObject
+    */
     var carLocationRef = ref(db, 'location/car');
     onValue(carLocationRef, (snapshot) => {
       window.updateCarData(snapshot.val())
     });
 
+    /*
+      onValue changed listener for the droneObject
+    */
     var droneLocationRef = ref(db, 'location/drone');
     onValue(droneLocationRef, (snapshot) => {
       window.updateDroneData(snapshot.val())
@@ -291,37 +300,64 @@
   </script>
 
   <script type="module">
+    // Vehicle objects
     var carObject = { latitude: 0, longitude: 0, speed: 0, altitude: 0 }
     var droneObject = { latitude: 0, longitude: 0, speed: 0, altitude: 0 };
 
+    // Map objects
     var carCircle = undefined, droneCircle = undefined;
     var map = undefined;
 
+    /*
+      A static function to update the car data with the given vehicle object
+    */
     window.updateCarData = function (vehicle) {
       carObject = vehicle;
       updateMap();
       updateData('car', vehicle);
     }
 
+    /*
+      A static function to update the drone data with the given vehicle object
+    */
     window.updateDroneData = function (vehicle) {
       droneObject = vehicle;
       updateMap();
       updateData('drone', vehicle);
     }
 
-    async function updateCarData() {
-      carObject = await window.readData('car');;
-      updateMap();
-      updateData('car', carObject);
+    /*
+      A static function to focus a vehicle system circle
+    */
+    window.focusLocation = function (system) {
+      switch (system) {
+        case "car":
+          if (map)
+            map.setView([carObject.latitude, carObject.longitude], 22);
+          break;
+        case "drone":
+          if (map)
+            map.setView([droneObject.latitude, droneObject.longitude], 22);
+          break;
+      }
     }
 
-    async function updateDroneData() {
-      droneObject = await window.readData('drone');
-      updateMap();
-      updateData('drone', droneObject);
+    /*
+      Updates the given system-vehicle name's data
+    */
+    const updateData = function (system, obj) {
+      document.getElementById(system + "-speed-value").innerText = obj.speed + " KPH";
+      document.getElementById(system + "-latitude-value").innerText = parseFloat(obj.latitude).toFixed(3) + "°";
+      document.getElementById(system + "-latitude-value").setAttribute('value', obj.latitude);
+      document.getElementById(system + "-longitude-value").innerText = parseFloat(obj.longitude).toFixed(3) + "°";
+      document.getElementById(system + "-longitude-value").setAttribute('value', obj.longitude);
+      document.getElementById(system + "-altitude-value").innerText = obj.altitude + "' ft";
     }
 
-    async function updateMap() {
+    /*
+      Updates the map.
+    */
+    const updateMap = async function () {
       if (!map) {
         // If the map is not initialized, create a new map
         map = L.map("map").setView(
@@ -339,62 +375,63 @@
 
         map.setView([middleLatitude, middleLongitude], 22);
 
+        // If the car circle already exists
         if (carCircle) {
+          // Remove the car circle
           map.removeLayer(carCircle);
         }
 
+        // If the drone circle already exists
         if (droneCircle) {
+          // Remove the drone circle
           map.removeLayer(droneCircle);
         }
       }
 
-      carCircle = L.circle([carObject.latitude, carObject.longitude], {
-        color: "green",
-        fillColor: "#013220",
+      // Creates the car circle after it got cleared
+      carCircle = createCircle(carObject.latitude, carObject.longitude, "green");
+      addPopup(carCircle, "car");
+      carCircle.addTo(map);
+
+      // Creates the drone circle after it got cleared
+      droneCircle = createCircle(droneObject.latitude, droneObject.longitude, "#00b4d8");
+      addPopup(droneCircle, "drone");
+      droneCircle.addTo(map);
+    }
+
+    /*
+      A builder-function to create a circle with given parameters (returns the circle object)
+    */
+    const createCircle = function (lat, lng, color) {
+      return L.circle([lat, lng], {
+        color: color,
+        fillColor: color === "green" ? "#013220" : "#0077b6",
         fillOpacity: 0.75,
         radius: 5,
         bounceOnAdd: true,
-      }).bindPopup(String("Car GPS")).addTo(map);
+      });
+    };
 
-      droneCircle = L.circle([droneObject.latitude, droneObject.longitude], {
-        color: "#00b4d8",
-        fillColor: "#0077b6",
-        fillOpacity: 0.75,
-        radius: 5,
-        bounceOnAdd: true,
-      }).bindPopup(String("Drone GPS")).addTo(map);
-    }
+    /*
+      A builder-function to initialize the map with given parameters (returns the map object)
+    */
+    const initializeMap = function (lat, lng) {
+      return L.map("map").setView([parseFloat(lat), parseFloat(lng)], 22);
+    };
 
-    function updateData(system, obj) {
-      document.getElementById(system + "-speed-value").innerText = obj.speed + " KPH";
+    /*
+      Adds a popup to a given circle with the system vehicle name and adds a suffix of "GPS"
+    */
+    const addPopup = function (circle, system) {
+      circle.bindPopup(`${system.charAt(0).toUpperCase() + system.slice(1)} GPS`);
+    };
 
-      document.getElementById(system + "-latitude-value").innerText = parseFloat(obj.latitude).toFixed(3) + "°";
-      document.getElementById(system + "-latitude-value").setAttribute('value', obj.latitude);
-
-      document.getElementById(system + "-longitude-value").innerText = parseFloat(obj.longitude).toFixed(3) + "°";
-      document.getElementById(system + "-longitude-value").setAttribute('value', obj.longitude);
-
-      document.getElementById(system + "-altitude-value").innerText = obj.altitude + "' ft";
-    }
-
-    window.focusLocation = function (system) {
-      switch (system) {
-        case "car":
-          if (map)
-            map.setView([carObject.latitude, carObject.longitude], 22);
-          break;
-        case "drone":
-          if (map)
-            map.setView([droneObject.latitude, droneObject.longitude], 22);
-          break;
-      }
-    }
-
-    await updateMap();
-
-    document.addEventListener("DOMContentLoaded", function () {
+    // onReady
+    document.addEventListener("DOMContentLoaded", async function () {
+      // Get the coords values from all lat & lng in UI
       var coordsValues = document.querySelectorAll(".coords-value");
 
+      // Add an event listener for mouseenter and mouseleave to show all text and 3 decimal numbers text
       coordsValues.forEach(function (element) {
         element.addEventListener("mouseenter", function () {
           element.innerHTML = element.getAttribute('value') + "°";
@@ -405,6 +442,9 @@
           element.innerHTML = roundedValue + "°";
         });
       });
+
+      // Wait for the map to update / load
+      await updateMap();
     });
   </script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
