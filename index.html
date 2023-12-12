@@ -272,54 +272,49 @@
   </script>
 
   <script type="module">
-    var carLatitude = 0, carLongitude = 0, carSpeed = 0, carAltitude = 0;
-    var droneLatitude = 0, droneLongitude = 0, droneSpeed = 0, droneAltitude = 0;
+    var carObject = {
+      latitude: 0,
+      longitude: 0,
+      speed: 0,
+      altitude: 0
+    }, droneObject = {
+      latitude: 0,
+      longitude: 0,
+      speed: 0,
+      altitude: 0
+    };
     var carCircle = undefined, droneCircle = undefined;
     var map = undefined;
 
     window.updateCarData = function (vehicle) {
-      carLatitude = vehicle.latitude;
-      carLongitude = vehicle.longitude;
-      carAltitude = vehicle.altitude;
-      carSpeed = vehicle.speed;
+      carObject = vehicle;
       updateMap();
       updateData('car', vehicle);
     }
 
     window.updateDroneData = function (vehicle) {
-      droneLatitude = vehicle.latitude;
-      droneLongitude = vehicle.longitude;
-      droneAltitude = vehicle.altitude;
-      droneSpeed = vehicle.speed;
+      droneObject = vehicle;
       updateMap();
       updateData('drone', vehicle);
     }
 
     async function updateCarData() {
-      const carRef = await window.readData('car');
-      carLatitude = carRef.latitude;
-      carLongitude = carRef.longitude;
-      carAltitude = carRef.altitude;
-      carSpeed = carRef.speed;
+      carObject = await window.readData('car');;
       updateMap();
-      updateData('car', carRef);
+      updateData('car', carObject);
     }
 
     async function updateDroneData() {
-      const droneRef = await window.readLocation('drone');
-      droneLatitude = droneRef.latitude;
-      droneLongitude = droneRef.longitude;
-      droneAltitude = droneRef.altitude;
-      droneSpeed = droneRef.speed;
+      droneObject = await window.readLocation('drone');
       updateMap();
-      updateData('drone', droneRef);
+      updateData('drone', droneObject);
     }
 
-    function updateMap() {
+    async function updateMap() {
       if (!map) {
         // If the map is not initialized, create a new map
         map = L.map("map").setView(
-          [parseFloat(carLatitude), parseFloat(carLongitude)],
+          [parseFloat(carObject.latitude), parseFloat(carObject.longitude)],
           22
         );
 
@@ -328,8 +323,8 @@
         }).addTo(map);
       } else {
         // If the map is already initialized, update the marker location and view
-        const middleLatitude = (parseFloat(carLatitude) + parseFloat(droneLatitude)) / 2;
-        const middleLongitude = (parseFloat(carLongitude) + parseFloat(droneLongitude)) / 2;
+        const middleLatitude = (parseFloat(carObject.latitude) + parseFloat(droneObject.latitude)) / 2;
+        const middleLongitude = (parseFloat(carObject.longitude) + parseFloat(droneObject.longitude)) / 2;
 
         map.setView([middleLatitude, middleLongitude], 22);
 
@@ -342,7 +337,7 @@
         }
       }
 
-      carCircle = L.circle([carLatitude, carLongitude], {
+      carCircle = L.circle([carObject.latitude, carObject.longitude], {
         color: "green",
         fillColor: "#013220",
         fillOpacity: 0.75,
@@ -350,7 +345,7 @@
         bounceOnAdd: true,
       }).bindPopup(String("Car GPS")).addTo(map);
 
-      droneCircle = L.circle([droneLatitude, droneLongitude], {
+      droneCircle = L.circle([droneObject.latitude, droneObject.longitude], {
         color: "#00b4d8",
         fillColor: "#0077b6",
         fillOpacity: 0.75,
@@ -370,16 +365,16 @@
       switch (system) {
         case "car":
           if (map)
-            map.setView([carLatitude, carLongitude], 22);
+            map.setView([carObject.latitude, carObject.longitude], 22);
           break;
         case "drone":
           if (map)
-            map.setView([droneLatitude, droneLongitude], 22);
+            map.setView([droneObject.latitude, droneObject.longitude], 22);
           break;
       }
     }
 
-    updateMap();
+    await updateMap();
   </script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </body>
