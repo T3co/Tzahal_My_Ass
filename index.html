@@ -123,6 +123,7 @@
       border-radius: .25rem;
       padding-inline: 5px;
       cursor: pointer;
+      transition: ease-in background-color .1s;
     }
 
     .car-text {
@@ -130,6 +131,15 @@
       border-radius: .25rem;
       padding-inline: 5px;
       cursor: pointer;
+      transition: ease-in background-color .1s;
+    }
+
+    .drone-text:hover {
+      background-color: #066293;
+    }
+
+    .car-text:hover {
+      background-color: rgb(8, 99, 8);
     }
 
     .veh-data-fields {
@@ -272,17 +282,9 @@
   </script>
 
   <script type="module">
-    var carObject = {
-      latitude: 0,
-      longitude: 0,
-      speed: 0,
-      altitude: 0
-    }, droneObject = {
-      latitude: 0,
-      longitude: 0,
-      speed: 0,
-      altitude: 0
-    };
+    var carObject = { latitude: 0, longitude: 0, speed: 0, altitude: 0 }
+    var droneObject = { latitude: 0, longitude: 0, speed: 0, altitude: 0 };
+
     var carCircle = undefined, droneCircle = undefined;
     var map = undefined;
 
