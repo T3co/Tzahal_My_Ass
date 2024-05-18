@@ -17,6 +17,6 @@ Webpage was designed and made by Amitai Dvora (finalLy)
 
 ![unknown](https://i.imgur.com/4PVNbR4.png)
 
-**Licensing and Copyright**:
+## **Licensing and Copyright**
 
 © 2023 Amitai Dvora Design
